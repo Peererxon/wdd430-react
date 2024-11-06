@@ -1,55 +1,52 @@
-import { useEffect, useState } from "react";
-import ItemList from "./ItemList";
-import "./styles.css";
-import NewTodoForm from "./NewTodoForm";
+import { useEffect, useState } from "react"
+import { NewTodoForm } from "./NewTodoForm"
+import "./styles.css"
+import { TodoList } from "./TodoList"
 
-function App() {
-	const [todos, setTodos] = useState(() => {
-		const localValue = localStorage.getItem("todos");
-		console.log(localValue);
-		if (localValue == null) return [];
+export default function App() {
+  const [todos, setTodos] = useState(() => {
+    const localValue = localStorage.getItem("ITEMS")
+    if (localValue == null) return []
 
-		return JSON.parse(localValue);
-	});
+    return JSON.parse(localValue)
+  })
 
-	useEffect(() => {
-		localStorage.setItem("todos", JSON.stringify(todos));
-	}, [todos]);
+  useEffect(() => {
+    localStorage.setItem("ITEMS", JSON.stringify(todos))
+  }, [todos])
 
-	function addTodo(title) {
-		setTodos((currentTodos) => [
-			...currentTodos,
-			{ id: crypto.randomUUID(), title: title, completed: false },
-		]);
-	}
+  function addTodo(title) {
+    setTodos(currentTodos => {
+      return [
+        ...currentTodos,
+        { id: crypto.randomUUID(), title, completed: false },
+      ]
+    })
+  }
 
-	function toggleTodo(completed, id) {
-		setTodos((currentTodos) =>
-			currentTodos.map((todoItem) => {
-				if (todoItem.id === id) {
-					return {
-						...todoItem,
-						completed,
-					};
-				}
-				return todoItem;
-			})
-		);
-	}
+  function toggleTodo(id, completed) {
+    setTodos(currentTodos => {
+      return currentTodos.map(todo => {
+        if (todo.id === id) {
+          return { ...todo, completed }
+        }
 
-	function deleteTodo(id) {
-		setTodos((currentTodos) => currentTodos.filter((todo) => todo.id != id));
-	}
-	return (
-		<>
-			<NewTodoForm addTodo={addTodo} />
-			<ItemList
-				items={todos}
-				completeItem={toggleTodo}
-				deleteItem={deleteTodo}
-			/>
-		</>
-	);
+        return todo
+      })
+    })
+  }
+
+  function deleteTodo(id) {
+    setTodos(currentTodos => {
+      return currentTodos.filter(todo => todo.id !== id)
+    })
+  }
+
+  return (
+    <>
+      <NewTodoForm onSubmit={addTodo} />
+      <h1 className="header">Todo List</h1>
+      <TodoList todos={todos} toggleTodo={toggleTodo} deleteTodo={deleteTodo} />
+    </>
+  )
 }
-
-export default App;
